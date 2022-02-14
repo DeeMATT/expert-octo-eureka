@@ -4,7 +4,6 @@ from .models import User
 from django.utils.translation import gettext_lazy as _
 
 
-
 class UserAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
@@ -25,5 +24,6 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
     search_fields = ('email', 'first_name', 'last_name')
     ordering = ('email',)
+
 
 admin.site.register(User, UserAdmin)
