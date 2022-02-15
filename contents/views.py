@@ -11,8 +11,8 @@ class PageListView(APIView):
     List all pages, or create a new page.
     """
     def get(self, request, format=None):
-        snippets = Pages.objects.all()
-        serializer = PageSerializer(snippets, many=True)
+        pages = Pages.objects.all()
+        serializer = PageSerializer(pages, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
@@ -34,8 +34,8 @@ class PageDetailView(APIView):
             raise Http404
 
     def get(self, request, slug, format=None):
-        snippet = self.get_object(slug=slug)
-        serializer = PageSerializer(snippet)
+        page = self.get_object(slug=slug)
+        serializer = PageSerializer(page)
         return Response(serializer.data)
 
     def put(self, request, slug, format=None):
