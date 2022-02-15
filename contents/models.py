@@ -1,6 +1,7 @@
 from django.db import models
 import string, random
 from django.utils.text import slugify
+from django.urls import reverse
 
 
 STATUS_CHOICES = (
@@ -33,3 +34,6 @@ class Pages(models.Model):
             self.slug = slugify(random_string() + "-" + self.title)
 
         super(Pages, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('article_detail', kwargs={'slug': self.slug})
