@@ -3,9 +3,27 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import EmailValidator
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import UserManager as BaseUserManager
-import string    
-import random 
 
+
+WFP = 1
+UN = 2
+
+PUBLIC_USER = 1
+CONTENT_EDITOR = 2
+ADMINISTRATOR = 3
+
+AGENCY_CHOICES = [
+    (WFP, "wfp"),
+    (UN, "un")
+]
+
+ROLE_CHOICES = [
+    (PUBLIC_USER, 'public_user'),
+    (CONTENT_EDITOR, "content_editor"),
+    (ADMINISTRATOR, "administrator")
+]
+
+email_validator = EmailValidator()
 
 class UserManager(BaseUserManager):
 
@@ -41,25 +59,6 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser):
-    WFP = 1
-    UN = 2
-
-    PUBLIC_USER = 1
-    CONTENT_EDITOR = 2
-    ADMINISTRATOR = 3
-
-    AGENCY_CHOICES = [
-        (WFP, "wfp"),
-        (UN, "un")
-    ]
-
-    ROLE_CHOICES = [
-        (PUBLIC_USER, 'public_user'),
-        (CONTENT_EDITOR, "content_editor"),
-        (ADMINISTRATOR, "administrator")
-    ]
-
-    email_validator = EmailValidator()
     email = models.CharField(
         _('email address'),
         max_length=150,
