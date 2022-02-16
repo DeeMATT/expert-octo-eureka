@@ -33,6 +33,3 @@ class Pages(models.Model):
             self.slug = slugify(random_string() + "-" + self.title)
 
         super(Pages, self).save(*args, **kwargs)
-
-    def get_absolute_url(self):
-        return reverse('article_detail', kwargs={'slug': self.slug})
