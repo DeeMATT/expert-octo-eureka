@@ -4,6 +4,6 @@ from .views import PageListView, PageDetailView
 
 
 urlpatterns = [
-    path('page/', PageListView.as_view()),
-    path('page/<slug:slug>/', PageDetailView.as_view()),
+    path('pages/', PageListView.as_view()),
+    path('pages/<slug:slug>/', PageDetailView.as_view()),
 ]
