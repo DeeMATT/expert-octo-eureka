@@ -1,8 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.core.validators import EmailValidator
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import UserManager as BaseUserManager
+
 
 
 WFP = 1
@@ -71,6 +72,21 @@ class User(AbstractUser):
     username = None
     agency = models.CharField(max_length=16, choices=AGENCY_CHOICES, blank=True, null=True)
     role = models.CharField(max_length=16, choices=ROLE_CHOICES, blank=True, null=True)
+    groups = models.ManyToManyField(
+        Group,
+        verbose_name=_('groups'),
+        blank=True,
+        related_name="user_set",
+        related_query_name="user",
+    )
+    user_permissions = models.ManyToManyField(
+        Permission,
+        verbose_name=_('user permissions'),
+        blank=True,
+        help_text=_('Specific permissions for this user.'),
+        related_name="user_set",
+        related_query_name="user",
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
