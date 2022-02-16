@@ -16,12 +16,11 @@ class Pages(models.Model):
     title = models.CharField(max_length=254, blank=False, null=False)
     description = models.TextField(null=True)
     slug = models.SlugField(max_length=250, null=True, blank=True)
-    body = models.TextField()
+    body = models.JSONField(default=dict, null=False)
     published_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
-    # featured_image_attribute
 
     def __str__(self):
         return self.title
