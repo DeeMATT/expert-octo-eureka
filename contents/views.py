@@ -4,8 +4,20 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import serializers
 
 
+def validateKeys(payload, requiredKeys):
+    # extract keys from payload
+    payloadKeys = list(payload.keys())
+
+    # check if extracted keys is present in requiredKeys
+    missingKeys = []
+    for key in requiredKeys:
+        if key not in payloadKeys:
+            missingKeys.append(key)
+
+    return missingKeys
 class PageListView(APIView):
     """
     List all pages, or create a new page.
@@ -16,8 +28,18 @@ class PageListView(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        serializer = PageSerializer(data=request.data)
+        data = request.data
+        serializer = PageSerializer(data=data)
         if serializer.is_valid():
+
+            body = data.get('body')
+            # check if required fields are present in body object
+            missingKeys = validateKeys(payload=body, requiredKeys=['html', 'css', 'js'])
+            if missingKeys:
+                raise serializers.ValidationError({
+                    "body": "The body field should contain the key and values for: ['html', 'css', 'js']"
+                })
+
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -40,8 +62,17 @@ class PageDetailView(APIView):
 
     def put(self, request, slug, format=None):
         page = self.get_object(slug)
-        serializer = PageSerializer(page, data=request.data)
+        data = request.data
+        serializer = PageSerializer(page, data=data)
         if serializer.is_valid():
+
+            body = data.get('body')
+            # check if required fields are present in body object
+            missingKeys = validateKeys(payload=body, requiredKeys=['html', 'css', 'js'])
+            if missingKeys:
+                raise serializers.ValidationError({
+                    "body": "The body field should contain the key and values for: ['html', 'css', 'js']"
+                })
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
