@@ -10,12 +10,12 @@ class PageSerializer(serializers.ModelSerializer):
         read_only_fields = ['published_at', 'updated_at']
 
 
-def transformPage(obj):
-    title = obj['title'].lower()
+def transformPage(data):
+    title = data['title'].lower()
 
     return {
-        title: obj
+        title: data
     }
 
-def transformPageDataSet(dataset):
-    return list(map(lambda x: transformPage(x), dataset))
+def transformPageDataSet(self):
+    return list(map(lambda x: transformPage(x), self.data))
