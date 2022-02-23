@@ -10,6 +10,7 @@ from rest_framework import serializers
 from .utils import (
     validate_keys, get_page_by_slug, get_page_by_title
 )
+from rest_framework import viewsets
 
 
 class PageListView(APIView):
@@ -20,7 +21,7 @@ class PageListView(APIView):
     def get(self, request, format=None):
         pages = Pages.objects.all()
         serializer = PageSerializer(pages, many=True)
-        return Response(transformPageDataSet(serializer.data))
+        return Response(transformPageDataSet(serializer))
 
     def post(self, request, format=None):
         data = request.data
@@ -91,5 +92,80 @@ class PageDetailView(APIView):
 
     def delete(self, request, slug, format=None):
         page = self.get_object(slug)
+        page.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+class PageViewSet(viewsets.ModelViewSet):
+    """
+    A simple ViewSet for viewing and editing the accounts
+    associated with the user.
+    """
+    queryset = Pages.objects.all()
+    serializer_class = PageSerializer
+    lookup_field = 'slug'
+
+    def list(self, request):
+        serializer = PageSerializer(self.get_queryset(), many=True)
+        return Response(transformPageDataSet(serializer))
+
+    def create(self, request):
+        data = request.data
+        serializer = PageSerializer(data=data)
+        if serializer.is_valid():
+
+            body = data.get('body')
+            # check if required fields are present in body object
+            missingKeys = validate_keys(payload=body, required_keys=['html', 'css', 'js'])
+            if missingKeys:
+                raise serializers.ValidationError({
+                    "body": "The body field should contain the key and values for: ['html', 'css', 'js']"
+                })
+
+            # check if title already exists
+            title = data.get('title')
+            if get_page_by_title(title):
+                raise serializers.ValidationError({
+                    "title": "There is an already existing record with same title"
+                })
+
+            serializer.save()
+            return Response(transformPage(serializer.data), status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def retrieve(self, request, slug=None):
+        page = self.get_object()
+        serializer = PageSerializer(page)
+        return Response(transformPage(serializer.data))
+    
+    def update(self, request, slug=None):
+        page = self.get_object()
+        data = request.data
+        serializer = PageSerializer(page, data=data)
+        if serializer.is_valid():
+
+            body = data.get('body')
+            # check if required fields are present in body object
+            missingKeys = validate_keys(payload=body, required_keys=['html', 'css', 'js'])
+            if missingKeys:
+                raise serializers.ValidationError({
+                    "body": "The body field should contain the key and values for: ['html', 'css', 'js']"
+                })
+
+            # check if title already exists
+            title = data.get('title')
+            existing_page = get_page_by_title(title)
+            if existing_page and page.id != existing_page.id:
+                raise serializers.ValidationError({
+                    "title": "There is an already existing record with same title"
+                })
+
+            serializer.save()
+            return Response(transformPage(serializer.data))
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk=None):
+        page = self.get_object()
         page.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
